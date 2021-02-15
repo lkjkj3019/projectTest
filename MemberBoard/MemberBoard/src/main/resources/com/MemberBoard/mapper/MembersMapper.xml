@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- https://mybatis.org/mybatis-3/ko/getting-started.html 
+						에서 -매핑된 SQL 구문 살펴보기- 부분에서 위에부분 복사 -->
+						
+<mapper namespace="com.MemberBoard.mapper.MembersMapper">
+
+	<!-- 아이디 중복확인 -->
+	<select id="idCheck" parameterType="String" resultType="String">
+		SELECT MID FROM MEMBERS WHERE MID=#{mid}
+	</select>
+
+
+	<!-- 회원가입 입력 -->
+	<insert id="memberJoin" parameterType="com.MemberBoard.dto.MembersDTO">
+		INSERT INTO MEMBERS(MID, MPASSWORD, MNAME, MPHONE, MEMAIL, MBIRTH, MADD, MFILENAME) 
+		VALUES(#{mid}, #{mpassword}, #{mname}, #{mphone}, #{memail}, #{mbirth}, #{madd}, 0)
+	</insert>
+	
+	
+	<!-- 로그인 -->
+	<select id="memberLogin" resultType="String">
+		SELECT MID FROM MEMBERS WHERE MID=#{mid} AND MPASSWORD=#{mpassword}
+	</select>
+	
+	
+	<!-- 내정보 -->
+	<select id="memberView" parameterType="String" resultMap="member">
+		SELECT * FROM MEMBERS WHERE MID=#{mid}
+	</select>
+	
+	
+	<!-- 정보수정 - 전화번호 -->
+	<update id="updateMphone" parameterType="com.MemberBoard.dto.MembersDTO">
+		UPDATE MEMBERS SET MPHONE=#{mphone} WHERE MID=#{mid}
+	</update>
+	
+	
+	<!-- 정보수정 - 이메일 -->
+	<update id="updateMemail" parameterType="com.MemberBoard.dto.MembersDTO">
+		UPDATE MEMBERS SET MEMAIL=#{memail} WHERE MID=#{mid}
+	</update>
+	
+	
+	<!-- 프로필 파일 이미지 업로드 -->
+	<update id="fileUpdate" parameterType="com.MemberBoard.dto.MembersDTO">
+		UPDATE MEMBERS SET MFILENAME=#{mfilename} WHERE MID=#{mid}
+	</update>
+	
+	
+	<!-- 아이디옆 프로필이미지 변경 -->
+	<select id="getProfile" parameterType="String" resultType="String">
+		SELECT MFILENAME FROM MEMBERS WHERE MID=#{mid}
+	</select>
+	
+	
+	<!-- 회원목록 출력 -->
+	<select id="memberList" resultMap="member" parameterType="com.MemberBoard.dto.PageDTO">
+		SELECT *
+		FROM(SELECT ROWNUM RN, MEMBERS.* FROM MEMBERS)
+		WHERE RN BETWEEN #{startrow} AND #{endrow}
+		ORDER BY MID
+	</select>
+	
+	
+	<!-- 회원목록의 회원수 -->
+	<select id="getMemberListCnt" resultType="int">
+		SELECT COUNT(*) FROM MEMBERS
+	</select>
+	
+	
+	<!-- 회원삭제 -->
+	<delete id="memberDelete" parameterType="String">
+		DELETE FROM MEMBERS WHERE MID=#{mid}
+	</delete>
+	
+	
+	
+	
+	<resultMap type="com.MemberBoard.dto.MembersDTO" id="member">
+		<result property="mid" column="MID"/>
+		<result property="mpassword" column="MPASSWORD"/>
+		<result property="mname" column="MNAME"/>
+		<result property="mphone" column="MPHONE"/>
+		<result property="memail" column="MEMAIL"/>
+		<result property="mbirth" column="MBIRTH"/>
+		<result property="madd" column="MADD"/>
+		<result property="mfilename" column="MFILENAME"/>
+	</resultMap>
+	
+</mapper>

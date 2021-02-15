@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- https://mybatis.org/mybatis-3/ko/getting-started.html 
+						에서 -매핑된 SQL 구문 살펴보기- 부분에서 위에부분 복사 -->
+						
+<mapper namespace="com.MemberBoard.mapper.CommentsMapper">
+
+	<!-- 댓글 번호 부여 -->
+	<select id="getMaxCno" resultType="int">
+		SELECT NVL(MAX(CNO),0) FROM COMMENTS
+		<!-- 댓글이 없을경우에는 null값이 아닌 0으로 표시해라 -->
+	</select>
+	
+	
+	<!-- 댓글 입력 -->
+	<insert id="commentWrite" parameterType="com.MemberBoard.dto.CommentsDTO">
+		INSERT INTO COMMENTS VALUES(#{cno}, #{cbno}, #{cwriter}, #{ccontent}, SYSDATE)
+	</insert>
+	
+	
+	<!-- 댓글 목록 새로고침 -->
+	<select id="commentList" parameterType="int" resultMap="comment">
+		SELECT * FROM COMMENTS WHERE CBNO=#{cbno} ORDER BY CNO
+	</select>
+	
+	
+	<!-- 댓글 하나 삭제시 -->
+	<delete id="commentDelete" parameterType="int">
+		DELETE FROM COMMENTS WHERE CNO=#{cno}
+	</delete>
+	
+	
+	<!-- 게시판 삭제시 달려있는 댓글 모두 삭제시 -->
+	<delete id="allCommentDelete" parameterType="int">
+		DELETE FROM COMMENTS WHERE CBNO=#{cbno}
+	</delete>
+	
+	<!-- 댓글갯수 출력 -->
+	<select id="commentCnt" parameterType="int" resultType="int"><!-- resultType="int"숫자를 부여할때 하나바 -->
+		SELECT COUNT(*) FROM COMMENTS WHERE CBNO=#{cbno}
+	</select>
+	
+	
+	
+	<resultMap type="com.MemberBoard.dto.CommentsDTO" id="comment">
+		<result property="cno" column="CNO"/>
+		<result property="cbno" column="CBNO"/>
+		<result property="cwriter" column="CWRITER"/>
+		<result property="ccontent" column="CCONTENT"/>
+		<result property="cdate" column="CDATE"/>
+	</resultMap>
+	
+</mapper>

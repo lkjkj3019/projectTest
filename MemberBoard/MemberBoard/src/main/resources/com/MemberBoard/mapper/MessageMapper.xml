@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- https://mybatis.org/mybatis-3/ko/getting-started.html 
+						에서 -매핑된 SQL 구문 살펴보기- 부분에서 위에부분 복사 -->
+						
+<mapper namespace="com.MemberBoard.mapper.MessageMapper">
+
+
+	<!-- 메세지 보내기 -->
+	<insert id="sendMsg" parameterType="com.MemberBoard.dto.MembersMsgDTO">
+		INSERT INTO MEMBERSMSG(MSG_SENDID, MSG_RECEIVEID, MSG_CONTENT, MSG_DATE, MSG_CHECK) 
+		VALUES (#{msg_sendid}, #{msg_receiveid}, #{msg_content}, SYSDATE, 0)
+	</insert>
+	
+	
+	<!-- 메세지 리스트 출력 -->	<!-- DTO에서도 DATE String으로 변경 -->	<!-- as는 별칭설정 - TO_CHAR로 date변경 -->									<!-- 0=읽지않음 - 1=읽음 -->
+	<select id="receiveMsg" parameterType="String" resultMap="msg"><!-- parameterType은 mapperjava()안의 타입이 뭔지 -->
+		SELECT MSG_SENDID, MSG_RECEIVEID, MSG_CONTENT,
+		TO_CHAR(MSG_DATE,'YYYY-MM-DD HH24:MI:SS') AS MSG_DATE
+		FROM MEMBERSMSG WHERE MSG_RECEIVEID=#{msg_receiveid} AND MSG_CHECK = 0
+	</select>
+
+
+	<!-- 읽음표시로 변경 -->
+	<update id="checkUpdate" parameterType="com.MemberBoard.dto.MembersMsgDTO">
+		UPDATE MEMBERSMSG SET MSG_CHECK = 1 
+		WHERE MSG_SENDID=#{msg_sendid}
+		AND MSG_RECEIVEID=#{msg_receiveid}
+		AND MSG_DATE=TO_DATE(#{msg_date},'YYYY-MM-DD HH24:MI:SS')
+	</update>
+
+
+
+
+	<resultMap type="com.MemberBoard.dto.MembersMsgDTO" id="msg">
+		<result property="msg_sendid" column="MSG_SENDID"/>
+		<result property="msg_receiveid" column="MSG_RECEIVEID"/>
+		<result property="msg_content" column="MSG_CONTENT"/>
+		<result property="msg_date" column="MSG_DATE"/>
+		<result property="msg_check" column="MSG_CHECK"/>
+	</resultMap>
+
+
+
+
+
+
+</mapper>

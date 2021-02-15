@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- https://mybatis.org/mybatis-3/ko/getting-started.html 
+						에서 -매핑된 SQL 구문 살펴보기- 부분에서 위에부분 복사 -->
+						
+	<mapper namespace="com.MemberBoard.mapper.BoardMapper">
+				<!-- com폴더안에 MemberBoard폴더안에 mapper폴더안에 BoardMapper파일 -->
+	
+	
+	<!-- 게시판 목록 -->
+	<select id="boardList2" resultMap="board"> 
+			<!-- id=메소드 이름  resultType=dto파일 경로(SQL를 리턴해주는 값들) -->
+		SELECT * FROM BOARD
+	</select>
+	
+	
+	<!-- 게시판 번호 부여 -->
+	<select id="getMaxBno" resultType="int">
+		SELECT NVL(MAX(BNO),0) FROM BOARD
+	</select>
+	
+	
+	<!-- 게시판 작성 -->
+	<insert id="boardWrite" parameterType="com.MemberBoard.dto.BoardDTO">
+		INSERT INTO BOARD(BNO, BWRITER, BPASSWORD, BTITLE, BCONTENT, BDATE, BHIT, BFILENAME) VALUES(#{bno}, #{bwriter}, #{bpassword}, #{btitle}, #{bcontent}, SYSDATE, #{bhit},0)
+	</insert>
+	
+	
+	<!-- 게시판 상세보기 -->
+	<select id="boardView" resultMap="board" parameterType="int"><!-- 앞에서 bno을 int 타입으로 보냈으니깐 -->
+		SELECT * FROM BOARD WHERE BNO=#{bno}
+	</select>
+	
+	
+	<!-- 게시판 내용 수정 -->
+	<update id="boardModifyProcess" parameterType="com.MemberBoard.dto.BoardDTO">
+		UPDATE BOARD SET BCONTENT=#{bcontent} WHERE BNO=#{bno}
+	</update>
+	
+	
+	<!-- 게시판 삭제 -->
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM BOARD WHERE BNO=#{bno}
+	</delete>
+	
+	
+	<!-- 게시판 부분 서치 -->
+	<select id="boardSearch" resultMap="board">
+		SELECT * FROM BOARD
+			<where><!-- db에 WHERE문 -->
+				<if test="searchType == 'searchBtitle'">
+					BTITLE LIKE '%'||#{keyWord}||'%'
+				</if>
+				<if test="searchType == 'searchBwriter'">
+					BWRITER LIKE '%'||#{keyWord}||'%'
+				</if>
+			</where>
+	</select>
+	
+	
+	<!-- 게시판 파일 등록 -->
+	<insert id="boardFile" parameterType="com.MemberBoard.dto.BoardDTO">
+		INSERT INTO BOARD(BNO, BWRITER, BPASSWORD, BTITLE, BCONTENT, BDATE, BHIT, BFILENAME) VALUES(#{bno}, #{bwriter}, #{bpassword}, #{btitle}, #{bcontent}, SYSDATE, #{bhit}, #{bfilename})
+	</insert>
+	
+	
+	<!-- 게시판 파일 이름 -->
+	<select id="getBfileName" parameterType="int" resultType="String"><!-- resultMap="board" -->
+		SELECT BFILENAME FROM BOARD WHERE BNO=#{bno}
+	</select>
+	
+	
+	<!-- 게시판 페이징 출력 -->
+	<select id="boardListPaging" resultMap="board" parameterType="com.MemberBoard.dto.PageDTO">
+		SELECT *
+		FROM (SELECT ROWNUM RN, BOARD.* FROM BOARD ORDER BY BNO)
+		WHERE RN BETWEEN #{startrow} AND #{endrow}
+	</select>
+	
+	
+	<!-- 게시판 전체글의 갯수 -->
+	<select id="getBoardListCnt" resultType="int">
+		SELECT COUNT(*) FROM BOARD
+	</select>
+	
+	
+	<!-- 작성자 선택후 게시글 검색 -->
+	<select id="boardListMember" parameterType="String" resultMap="board"><!-- parameterType넘겨주는 값메소드, resultMap불러오는 -->
+		SELECT * FROM BOARD WHERE BWRITER=#{bwriter} ORDER BY BDATE
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 아래의 아이를 받을꺼면 resultMap="board"를 적어줘 -->
+	<resultMap type="com.MemberBoard.dto.BoardDTO" id="board">
+		<result property="bno" column="BNO"/> <!-- dto에서 bno라는 컬럼명을 가진 애 -->
+		<result property="bwriter" column="BWRITER"/> 
+			<!-- property=dto - column=db테이블컬럼명 -->
+		<result property="bpassword" column="BPASSWORD"/>
+		<result property="btitle" column="BTITLE"/>
+		<result property="bcontent" column="BCONTENT"/>
+		<result property="bdate" column="BDATE"/>
+		<result property="bhit" column="BHIT"/>
+		<result property="bfilename" column="BFILENAME"/>
+	</resultMap>
+	
+</mapper>
+
+						
+						
+						
+						
